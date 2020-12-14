@@ -1,10 +1,10 @@
 import argparse
 from PIL import Image
 from common import load_checkpoint
-from common import predict 
+from common import predict
 from utils_predict import recover_key
 import json
-import sys 
+import sys
 import torch
 
 parser = argparse.ArgumentParser(description='Predict.py')
@@ -28,38 +28,37 @@ top_k = int(float(top_k))
 
 if gpu and  not torch.cuda.is_available() :
     print("There is no a gpu device available")
-    sys.exit()
+
 
 message_cuda = "cuda is available" if torch.cuda.is_available() else "cuda is not available"
 
 print(message_cuda)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+
 model = load_checkpoint(checkpoint)
 
-model.to(device); 
+model.to(device);
 
-class_to_idx = model.class_to_idx 
+class_to_idx = model.class_to_idx
 
-probs, classes = predict(path_to_image, model, top_k) 
+probs, classes = predict(path_to_image, model, top_k)
 
 if not category_names:
-    print(classes) 
-    print(probs) 
-    
+    print(classes)
+    print(probs)
+
 else:
-    
+
     name_classes = []
-    
+
     with open(category_names, 'r') as f:
-        cat_to_name = json.load(f)    
-    
+        cat_to_name = json.load(f)
+
     for i in classes:
         flower_key = recover_key(class_to_idx, i)
         name_classes.append(cat_to_name[flower_key])
-    
+
     print("Result: ")
     print(name_classes)
     print(probs)
-
